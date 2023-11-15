@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "DeploymentID": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "userName": "[concat('odluser',parameters('DeploymentID'))]"
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "ODLUser": {
+      "type": "String",
+      "value": "[variables('userName')]"
+    }
+  } 
+}
