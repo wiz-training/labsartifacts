@@ -26,7 +26,8 @@
                 "ssm:GetParameter",
                 "eks:CreateCluster",
                 "eks:TagResource",
-                "autoscaling:*"
+                "autoscaling:*",
+                "cloudshell:CreateEnvironment"
             ],
             "Resource": "*"
         },
