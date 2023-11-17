@@ -3,7 +3,7 @@
 # Variables
 ARCH=amd64
 PLATFORM=$(uname -s)_$ARCH
-EKSCTL_PATH=/home/cloudshell-user/eksctl
+EKSCTL_PATH=/home/cloudshell-user
 
 # Download and extract eksctl
 curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
@@ -19,19 +19,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # Move eksctl to the user's home directory
-sudo mv /tmp/eksctl $EKSCTL_PATH
+sudo mv /tmp/eksctl $EKSCTL_PATH/eksctl
 if [ $? -ne 0 ]; then
     echo "Move failed."
     exit 1
 fi
 
 # Add eksctl to PATH in .bashrc if not already present
-if ! grep -q "$EKSCTL_PATH" ~/.bashrc; then
-    echo "export PATH=$EKSCTL_PATH:\$PATH" >> ~/.bashrc
-fi
-
-# Reload the shell environment
-source ~/.bashrc
+export PATH=$EKSCTL_PATH:$PATH
 
 # Test eksctl installation
 eksctl version
