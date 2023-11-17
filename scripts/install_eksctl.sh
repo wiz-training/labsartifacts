@@ -19,7 +19,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Move eksctl to the user's home directory
-sudo mv /tmp/eksctl $EKSCTL_PATH/eksctl
+mkdir $EKSCTL_PATH/bin
+sudo mv /tmp/eksctl $EKSCTL_PATH/bin/eksctl
 if [ $? -ne 0 ]; then
     echo "Move failed."
     exit 1

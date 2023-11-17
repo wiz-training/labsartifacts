@@ -27,7 +27,8 @@
                 "eks:CreateCluster",
                 "eks:TagResource",
                 "autoscaling:*",
-                "cloudshell:*"
+                "cloudshell:*",
+                "cloudtrail:*"
             ],
             "Resource": "*"
         },
