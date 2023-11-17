@@ -22,7 +22,11 @@
                 "eks:DescribeUpdate",
                 "eks:ListUpdates",
                 "eks:ListTagsForResource",
-                "eks:ListIdentityProviderConfigs"
+                "eks:ListIdentityProviderConfigs",
+                "ssm:GetParameter",
+                "eks:CreateCluster",
+                "eks:TagResource",
+                "autoscaling:*"
             ],
             "Resource": "*"
         },
@@ -51,6 +55,7 @@
                 "ForAnyValue:StringNotLike": {
                     "ec2:InstanceType": [
                         "t2.micro",
+                        "t2.small",
                         "t3.micro"
                     ]
                 }
