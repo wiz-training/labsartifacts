@@ -25,11 +25,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Add eksctl to PATH if not already present
-if ! echo $PATH | grep -q $EKSCTL_PATH; then
+# Add eksctl to PATH in .bashrc if not already present
+if ! grep -q "$EKSCTL_PATH" ~/.bashrc; then
     echo "export PATH=$EKSCTL_PATH:\$PATH" >> ~/.bashrc
-    source ~/.bashrc
 fi
+
+# Reload the shell environment
+source ~/.bashrc
 
 # Test eksctl installation
 eksctl version
