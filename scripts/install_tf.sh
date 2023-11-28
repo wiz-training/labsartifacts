@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Variables
-ARCH=amd64
-PLATFORM=$(uname -s)_$ARCH
-EKSCTL_PATH=/home/cloudshell-user
-
 # Downnload Terraform Version Manager to help install Terraform
 git clone https://github.com/tfutils/tfenv.git ~/.tfenv
 if [ $? -ne 0 ]; then
