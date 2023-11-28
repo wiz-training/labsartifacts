@@ -1,32 +1,43 @@
+#!/bin/bash
 
-# Add bin to PATH in .bashrc if not already present
-export PATH=$bin:$PATH
+# Variables
+ARCH=amd64
+PLATFORM=$(uname -s)_$ARCH
+EKSCTL_PATH=/home/cloudshell-user
 
-# Test Terraform installation
-terraform version
-if [ $? -eq 0 ]; then
-    echo "Terraform installed successfully."
-else
-    echo "eksctl installation failed."
-fi
-
-# Define Helm installation directory
-HELM_INSTALL_DIR="/usr/local/bin"
-
-# Check for OpenSSL and install if not present
-if ! command -v openssl &> /dev/null; then
-    echo "OpenSSL not found. Installing OpenSSL..."
-    sudo yum install -y openssl
-fi
-
-# Download and execute the Helm installation script
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-# Verify installation
-if command -v helm &> /dev/null; then
-    echo "Helm installation was successful."
-    helm version
-else
-    echo "Helm installation failed."
+# Downnload Terraform Version Manager to help install Terraform
+git clone https://github.com/tfutils/tfenv.git ~/.tfenv
+if [ $? -ne 0 ]; then
+    echo "Download failed."
     exit 1
 fi
+
+# make a new directory called ~/bin
+mkdir ~/bin
+if [ $? -ne 0 ]; then
+    echo "/bin directory already exists."
+    exit 1
+fi
+
+# make a symlink for tfenv/bin/* scripts into the path ~/bin 
+ln -s ~/.tfenv/bin/* ~/bin/
+if [ $? -ne 0 ]; then
+    echo "Simlink failed."
+    exit 1
+fi
+
+# with Terraform Version Manager install Terraform
+tfenv install
+if [ $? -ne 0 ]; then
+    echo "Terraform install failed."
+    exit 1
+fi
+
+# Test terraform installation
+terraform version
+if [ $? -eq 0 ]; then
+    echo "terrafrom installed successfully."
+else
+    echo "terrafrom installation failed."
+fi
+
