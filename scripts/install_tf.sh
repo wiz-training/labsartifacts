@@ -28,6 +28,11 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+tfenv use latest
+if [ $? -ne 0 ]; then
+    echo "Cannot set version."
+    exit 1
+fi
 # Test terraform installation
 terraform version
 if [ $? -eq 0 ]; then
