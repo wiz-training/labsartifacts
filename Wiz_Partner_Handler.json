@@ -1,0 +1,14 @@
+{
+    "GlobalRoles": [
+        "PROJECT READER"
+    ],
+    "ProjectRoles": [],
+    "TenantShortName": "WIZ-CTF-Game", 
+    "TenantDomainName": "wiziolabs.onmicrosoft.com",
+    "OutputValues": [
+        {
+            "Name": "WIZ Portal",
+            "Value": "https://app.wiz.io/idp-login?clientId=3hcu9h6l906b37cfltccat6jve&idp=partner-training-project-intro"
+        }
+    ]
+}
