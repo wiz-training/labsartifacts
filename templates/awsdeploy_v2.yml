@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Vulnerable VM for Cloud Security Lab.  Uses a dynamically generated SSH key in user data scripts instead of using the AWS created one.
+
+Mappings:
+  RegionToAMIMap:
+    us-east-1:
+      AMI: ami-055744c75048d8296
+    us-east-2:
+      AMI: ami-0c55b159cbfafe1f0
+    us-west-1:
+      AMI: ami-09563a10670fc573c
+    us-central-1:
+      AMI: ami-03cea216f9d507835
+
+Resources:
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for vulnerable VM
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 80  # Allow HTTP traffic
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          IpProtocol: tcp
+          FromPort: 22  # Allow SSH traffic
+          ToPort: 22
+
+  MyS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: false
+        OwnershipControls:
+          Rules:
+            - ObjectOwnership: ObjectWriter
+        Tags:
+          - Key: Name
+            Value: MyPublicBucket
+ 
+  MyInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: PermissiveRole
+ 
+  PermissiveRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowAll
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
+  
+  MyInstance:
+    Type: AWS::EC2::Instance
+    DependsOn: 
+      - MyS3Bucket
+      - MyInstanceProfile
+    Properties:
+      InstanceType: t2.micro
+      ImageId: !FindInMap [RegionToAMIMap, !Ref "AWS::Region", AMI]
+      SecurityGroups:
+        - Ref: MySecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get -y upgrade
+          apt-get install -y apache2 awscli jq # Install outdated Apache
+          sed -i 's/ServerTokens OS/ServerTokens Full/' /etc/apache2/conf-available/security.conf  # Change ServerTokens
+          sed -i 's/ServerSignature On/ServerSignature Off/' /etc/apache2/conf-available/security.conf
+          apt-get autoremove 
+          apt-get autoclean
+          
+          # Generate a new SSH key pair
+          mkdir -p /home/ubuntu/.ssh
+          ssh-keygen -t rsa -N "" -f /home/ubuntu/.ssh/MyKeyPair
+          
+          # Configure SSH to use the generated key pair
+          sed -i 's#AuthorizedKeysFile.*#AuthorizedKeysFile /home/ubuntu/.ssh/authorized_keys /home/ubuntu/.ssh/MyKeyPair.pub#' /etc/ssh/sshd_config
+          systemctl restart sshd
+          
+          # Dynamically determine the S3 bucket name
+          my_bucket=$(aws s3 ls | awk '$3 ~ /mys3bucket/ {print $3}' | sort | head -n 1)
+          echo "Determined S3 Bucket: $my_bucket"
+          
+          # Copy the generated PEM file to the S3 bucket
+          fileName="/home/ubuntu/.ssh/MyKeyPair"
+          aws s3 cp $fileName s3://$my_bucket/ --acl public-read
+      Tags:  # Add Tags property to assign a name
+        - Key: Name
+          Value: MyVM  
+      IamInstanceProfile: !Ref MyInstanceProfile
+
+Outputs:
+  InstanceId:
+    Description: Instance ID of the vulnerable VM
+    Value: !Ref MyInstance
+  S3BucketName:
+    Description: Name of the public S3 bucket
+    Value: !Ref MyS3Bucket
+  SSHKeyName:
+    Value: !Sub "MyKeyPair"
