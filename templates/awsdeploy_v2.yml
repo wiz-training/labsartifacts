@@ -96,7 +96,7 @@ Resources:
           
           # Dynamically determine the S3 bucket name
           my_bucket=$(aws s3 ls | awk '$3 ~ /mys3bucket/ {print $3}' | sort | head -n 1)
-          echo "Determined S3 Bucket: $my_bucket"
+          echo "Public S3 Bucket: $my_bucket"
           
           # Copy the generated PEM file to the S3 bucket
           fileName="/home/ubuntu/.ssh/MyKeyPair"
