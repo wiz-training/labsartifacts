@@ -492,25 +492,6 @@
                 },
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-                ],
-                "Policies": [
-                    {
-                        "PolicyName": "AccessSecretsManagerPolicy",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "secretsmanager:GetSecretValue"
-                                    ],
-                                    "Resource": {
-                                        "Ref": "SplunkSecret"
-                                    }
-                                }
-                            ]
-                        }
-                    }
                 ]
             }
         },
@@ -522,19 +503,6 @@
                         "Ref": "SplunkInstanceRole"
                     }
                 ]
-            }
-        },
-        "SplunkSecret": {
-            "Type": "AWS::SecretsManager::Secret",
-            "Properties": {
-                "Name": "SplunkPassword",
-                "Description": "Password for Splunk",
-                "GenerateSecretString": {
-                    "SecretStringTemplate": "{\"username\":\"admin\"}",
-                    "GenerateStringKey": "password",
-                    "PasswordLength": 16,
-                    "ExcludeCharacters": "\"@/\\"
-                }
             }
         }
     },
