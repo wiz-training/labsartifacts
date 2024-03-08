@@ -1,0 +1,548 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Splunk Enterprise standalone setup which includes building the infrastructure for the VPC/routing, setting up the Splunk instance, and configuring the application.",
+    "Parameters": {
+        "LatestAmiId": {
+            "Description": "The latest Amazon Linux 2023 AMI ID.",
+            "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+            "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+        }
+    },
+    "Resources": {
+        "IntegrationVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": "10.50.0.0/22",
+                "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-IntegrationVPC"
+                    }
+                ]
+            }
+        },
+        "PublicSubnetOne": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "CidrBlock": "10.50.0.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        1,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "MapPublicIpOnLaunch": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-public-subnet1"
+                    }
+                ]
+            }
+        },
+        "PublicSubnetTwo": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "CidrBlock": "10.50.1.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        2,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "MapPublicIpOnLaunch": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-public-subnet2"
+                    }
+                ]
+            }
+        },
+        "PrivateSubnetOne": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "CidrBlock": "10.50.2.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        1,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "MapPublicIpOnLaunch": false,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-private-subnet1"
+                    }
+                ]
+            }
+        },
+        "PrivateSubnetTwo": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "CidrBlock": "10.50.3.0/24",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        2,
+                        {
+                            "Fn::GetAZs": ""
+                        }
+                    ]
+                },
+                "MapPublicIpOnLaunch": false,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-private-subnet2"
+                    }
+                ]
+            }
+        },
+        "IntegrationIGW": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-Integration-Gateway"
+                    }
+                ]
+            }
+        },
+        "AttachGateway": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "InternetGatewayId": {
+                    "Ref": "IntegrationIGW"
+                }
+            }
+        },
+        "PublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-Integration-PublicRouteTable"
+                    }
+                ]
+            }
+        },
+        "PublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "DependsOn": "AttachGateway",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "IntegrationIGW"
+                }
+            }
+        },
+        "AssociatePublicSubnetOne": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PublicSubnetOne"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            }
+        },
+        "AssociatePublicSubnetTwo": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PublicSubnetTwo"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            }
+        },
+        "IntegrationNATGWEIP": {
+            "Type": "AWS::EC2::EIP",
+            "DependsOn": "AttachGateway",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "IntegrationNATGW": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "IntegrationNATGWEIP",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnetOne"
+                }
+            }
+        },
+        "PrivateRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Wizlabs-Integration-PrivateRouteTable"
+                    }
+                ]
+            }
+        },
+        "PrivateRouteOne": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "IntegrationNATGW"
+                }
+            }
+        },
+        "AssociatePrivateSubnetOne": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PrivateSubnetOne"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                }
+            }
+        },
+        "AssociatePrivateSubnetTwo": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PrivateSubnetTwo"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                }
+            }
+        },
+        "ALBSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Allows HTTP traffic to the ALB",
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 80,
+                        "ToPort": 80,
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 443,
+                        "ToPort": 443,
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ]
+            }
+        },
+        "SplunkSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Allow traffic from the ALB to the instance on ports 8000, 8089, 9997, and 443.",
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 8000,
+                        "ToPort": 8000,
+                        "SourceSecurityGroupId": {
+                            "Ref": "ALBSecurityGroup"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 443,
+                        "ToPort": 443,
+                        "SourceSecurityGroupId": {
+                            "Ref": "ALBSecurityGroup"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 8089,
+                        "ToPort": 8089,
+                        "CidrIp": {
+                            "Fn::GetAtt": [
+                                "IntegrationVPC",
+                                "CidrBlock"
+                            ]
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": 9997,
+                        "ToPort": 9997,
+                        "CidrIp": {
+                            "Fn::GetAtt": [
+                                "IntegrationVPC",
+                                "CidrBlock"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "IntegrationALB": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties": {
+                "Subnets": [
+                    {
+                        "Ref": "PublicSubnetOne"
+                    },
+                    {
+                        "Ref": "PublicSubnetTwo"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "ALBSecurityGroup"
+                    }
+                ],
+                "Scheme": "internet-facing"
+            }
+        },
+        "IntegrationTargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Port": 8000,
+                "Protocol": "HTTP",
+                "VpcId": {
+                    "Ref": "IntegrationVPC"
+                },
+                "HealthCheckPath": "/en-US/account/login?return_to=%2Fen-US%2F",
+                "HealthCheckProtocol": "HTTP",
+                "TargetType": "instance"
+            }
+        },
+        "IntegrationListener": {
+            "Type": "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties": {
+                "DefaultActions": [
+                    {
+                        "Type": "forward",
+                        "TargetGroupArn": {
+                            "Ref": "IntegrationTargetGroup"
+                        }
+                    }
+                ],
+                "LoadBalancerArn": {
+                    "Ref": "IntegrationALB"
+                },
+                "Port": 80,
+                "Protocol": "HTTP"
+            }
+        },
+        "SplunkLaunchTemplate": {
+            "Type": "AWS::EC2::LaunchTemplate",
+            "Properties": {
+                "LaunchTemplateName": "SplunkLaunchTemplate",
+                "LaunchTemplateData": {
+                    "ImageId": {
+                        "Ref": "LatestAmiId"
+                    },
+                    "InstanceType": "t3.medium",
+                    "SecurityGroupIds": [
+                        {
+                            "Ref": "SplunkSecurityGroup"
+                        }
+                    ],
+                    "IamInstanceProfile": {
+                        "Arn": {
+                            "Fn::GetAtt": [
+                                "SplunkInstanceProfile",
+                                "Arn"
+                            ]
+                        }
+                    },
+                    "BlockDeviceMappings": [
+                        {
+                            "Ebs": {
+                                "VolumeSize": 30,
+                                "VolumeType": "gp3",
+                                "Iops": 6000,
+                                "DeleteOnTermination": true
+                            },
+                            "DeviceName": "/dev/xvda"
+                        }
+                    ],
+                    "UserData": {
+                        "Fn::Base64": {
+                            "Fn::Sub": "#!/bin/bash\ndnf update -y\ndnf install -y wget\nmkdir -p /opt/splunk\nwget -O /opt/splunk/splunk-9.2.0.1-d8ae995bf219-Linux-x86_64.tgz \"https://download.splunk.com/products/splunk/releases/9.2.0.1/linux/splunk-9.2.0.1-d8ae995bf219-Linux-x86_64.tgz\"\ntar -xzf /opt/splunk/splunk-9.2.0.1-d8ae995bf219-Linux-x86_64.tgz -C /opt/splunk --strip-components=1\n# Create user-seed.conf file to set admin password\necho \"[user_info]\" > /opt/splunk/etc/system/local/user-seed.conf\necho \"USERNAME = admin\" >> /opt/splunk/etc/system/local/user-seed.conf\necho \"PASSWORD = W!z@rd2024$\" >> /opt/splunk/etc/system/local/user-seed.conf\n/opt/splunk/bin/splunk start --accept-license --answer-yes --no-prompt\n/opt/splunk/bin/splunk enable boot-start\n"
+                        }
+                    },
+                    "TagSpecifications": [
+                        {
+                            "ResourceType": "instance",
+                            "Tags": [
+                                {
+                                    "Key": "Name",
+                                    "Value": "Wizlabs-Splunk-Standalone-Integration"
+                                }
+                            ]
+                        },
+                        {
+                            "ResourceType": "volume",
+                            "Tags": [
+                                {
+                                    "Key": "Name",
+                                    "Value": "Wizlabs-Splunk-Standalone-Integration"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "SplunkAutoScalingGroup": {
+            "Type": "AWS::AutoScaling::AutoScalingGroup",
+            "Properties": {
+                "MinSize": "1",
+                "MaxSize": "1",
+                "DesiredCapacity": "1",
+                "LaunchTemplate": {
+                    "LaunchTemplateId": {
+                        "Ref": "SplunkLaunchTemplate"
+                    },
+                    "Version": {
+                        "Fn::GetAtt": [
+                            "SplunkLaunchTemplate",
+                            "LatestVersionNumber"
+                        ]
+                    }
+                },
+                "VPCZoneIdentifier": [
+                    {
+                        "Ref": "PrivateSubnetOne"
+                    }
+                ],
+                "TargetGroupARNs": [
+                    {
+                        "Ref": "IntegrationTargetGroup"
+                    }
+                ]
+            }
+        },
+        "SplunkInstanceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ec2.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+                ],
+                "Policies": [
+                    {
+                        "PolicyName": "AccessSecretsManagerPolicy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "secretsmanager:GetSecretValue"
+                                    ],
+                                    "Resource": {
+                                        "Ref": "SplunkSecret"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "SplunkInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Roles": [
+                    {
+                        "Ref": "SplunkInstanceRole"
+                    }
+                ]
+            }
+        },
+        "SplunkSecret": {
+            "Type": "AWS::SecretsManager::Secret",
+            "Properties": {
+                "Name": "SplunkPassword",
+                "Description": "Password for Splunk",
+                "GenerateSecretString": {
+                    "SecretStringTemplate": "{\"username\":\"admin\"}",
+                    "GenerateStringKey": "password",
+                    "PasswordLength": 16,
+                    "ExcludeCharacters": "\"@/\\"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "LoadBalancerUrl": {
+            "Description": "The URL of the ALB needed to access the Splunk UI.",
+            "Value": {
+                "Fn::GetAtt": [
+                    "IntegrationALB",
+                    "DNSName"
+                ]
+            }
+        }
+    }
+}
