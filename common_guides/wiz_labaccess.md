@@ -7,12 +7,14 @@ In this lab, you will be given access to the Wiz-Labs Wiz tenant, where you will
 <br/>
 <br>
 
-1. To access the the tenant, retrieve the credentials in the **Environment** tab.
+1. To access the Wiz Tenant, retrieve the credentials in the **Environment** tab.
 
    <p align="left">
        <img width="600" height="183" img src="img/env_creds.png"/>
         </p>
-        
+
+   > ❗ Make sure you perform the steps below in a private browser session/window
+
 1. Open a new Private/Incognito session in your browser, paste the WIZ Portal url, then use the Username and Password.
 
     <p align="left">
