@@ -10,7 +10,7 @@ If you are done with your lab, please click on the delete lab icon to ensure you
 > ‼️ This is a destructive action, you will not be able to access your lab environment. Please, make sure you are done with your tasks.
 
    <p align="left">
-       <img width="600" height="183" img src="img/endlab.png"/>
+       <img width="250" height="65" img src="img/endlab.png"/>
         </p>
 
 </div>
