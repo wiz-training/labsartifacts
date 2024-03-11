@@ -15,7 +15,9 @@ In this lab, you will be given access to the Wiz-Labs Wiz tenant, where you will
 
    > ❗ Make sure you perform the steps below in a private browser session/window
 
-1. Open a new Private/Incognito session in your browser, paste the WIZ Portal url, then use the Username and Password.
+1. Open a new Private/Incognito session in your browser.
+   
+1. In the Incognito browser, paste the WIZ Portal url, then use the Username and Password.
 
     <p align="left">
        <img width="600" height="384" img src="img/login.png"/>
