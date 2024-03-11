@@ -3,7 +3,7 @@
 # End your lab
 ___
 <br>
-If you are done with your lab, please click on the delete lab icon to ensure your labs is properly terminated. 
+If you are done with your lab, please click on the delete lab icon to ensure your lab is properly terminated. 
 <br>
 <br>
 
