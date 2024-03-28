@@ -300,7 +300,8 @@
                 "StringLike": {
                     "cloudformation:TemplateURL": [
                         "https://wizio-public.s3.amazonaws.com/deployment*",
-                        "https://clwizlabs.s3.amazonaws.com/"
+                        "https://clwizlabs.s3.amazonaws.com/",
+                        "https://cloudlabs-clwizlabs-43ivw811mgoc.s3.amazonaws.com"
                     ]
                 }
             }
