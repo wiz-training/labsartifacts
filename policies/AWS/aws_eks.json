@@ -45,7 +45,8 @@
                 "iam:PutRolePolicy",
                 "iam:AddRoleToInstanceProfile",
                 "iam:List*",
-                "iam:Get*"
+                "iam:Get*",
+                "iam:TagRole"
             ],
             "Resource": "*"
         },
