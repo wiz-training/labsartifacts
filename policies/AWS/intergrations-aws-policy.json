@@ -14,22 +14,7 @@
                 "cloudformation:*",
                 "aws-marketplace:*",
                 "cloudwatch:*",
-                "logs:*",
-                "eks:DescribeCluster",
-                "eks:ListClusters",
-                "eks:DescribeNodegroup",
-                "eks:ListNodegroups",
-                "eks:DescribeUpdate",
-                "eks:ListUpdates",
-                "eks:ListTagsForResource",
-                "eks:ListIdentityProviderConfigs",
-                "ssm:GetParameter",
-                "eks:CreateCluster",
-                "eks:TagResource",
-                "ecr:*",
-                "autoscaling:*",
-                "cloudshell:*",
-                "cloudtrail:*"
+                "logs:*"
             ],
             "Resource": "*"
         },
@@ -45,7 +30,9 @@
                 "iam:PutRolePolicy",
                 "iam:AddRoleToInstanceProfile",
                 "iam:List*",
-                "iam:Get*"
+                "iam:Get*",
+                "kms:*",
+                "iam:CreateServiceLinkedRole"
             ],
             "Resource": "*"
         },
@@ -58,7 +45,6 @@
                 "ForAnyValue:StringNotLike": {
                     "ec2:InstanceType": [
                         "t2.micro",
-                        "t2.small",
                         "t3.micro"
                     ]
                 }
@@ -164,7 +150,6 @@
                 "ecs:ListServices",
                 "ecs:ListTaskDefinitions",
                 "ecs:ListTasks",
-                "eks:*",
                 "elasticfilesystem:Describe*",
                 "elasticfilesystem:List*",
                 "elasticloadbalancing:Describe*",
@@ -198,9 +183,7 @@
                 "kinesis:Get*",
                 "kinesis:List*",
                 "kms:Describe*",
-                "kms:Get*",
-                "kms:List*",
-                "kms:CreateKey",
+                "kms:*",
                 "lambda:Get*",
                 "lambda:List*",
                 "lightsail:Get*",
@@ -284,10 +267,6 @@
                 "medialive:List*",
                 "mediapackage:Describe*",
                 "rds:AddTagsToResource",
-                "kms:DescribeKey",
-                "kms:CreateGrant",
-                "kms:Decrypt",
-                "kms:GenerateDataKey",
                 "secretsmanager:CreateSecret",
                 "secretsmanager:TagResource"
             ],
@@ -298,7 +277,7 @@
                 },
                 "StringLike": {
                     "cloudformation:TemplateURL": [
-                        "https://wizio-public.s3.amazonaws.com/deployment*",
+                        "https://wizio-public.s3.amazonaws.com/",
                         "https://clwizlabs.s3.amazonaws.com/"
                     ]
                 }
