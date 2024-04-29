@@ -10,7 +10,7 @@ az group create --name $resourceGroupName --location $location
 
 # Deploy virtual network
 echo "Creating VNET"
-az deployment group create --resource-group $resourceGroupName --template-file vnet.json
+az deployment group create --resource-group $resourceGroupName --template-file https://raw.githubusercontent.com/wiz-training/labsartifacts/main/scripts/azure/vnet.json
 
 # Wait for deployment to finish
 az deployment group wait --resource-group $resourceGroupName --name deployment0 --timeout 1800
@@ -20,7 +20,7 @@ subnetId=$(az network vnet subnet show --resource-group $resourceGroupName --vne
 
 # Deploy virtual machine
 echo "Deploying VM"
-az deployment group create --resource-group $resourceGroupName --template-file vm.json --parameters subnetId=$subnetId 
+az deployment group create --resource-group $resourceGroupName --template-file https://raw.githubusercontent.com/wiz-training/labsartifacts/main/scripts/azure/vm.json --parameters subnetId=$subnetId 
 
 # Wait for deployment to finish
 az deployment group wait --resource-group $resourceGroupName --name deployment1 --timeout 1800
@@ -28,7 +28,7 @@ az deployment group wait --resource-group $resourceGroupName --name deployment1 
 
 #Install libraries using a custom script extension
 echo "Setting up VM"
-script=$(base64 -w0 install-libraries.sh)
+script=$(base64 -w0 https://raw.githubusercontent.com/wiz-training/labsartifacts/main/scripts/azure/install-libraries.sh)
 vmName="MyVM"
 az vm extension set --resource-group $resourceGroupName --vm-name $vmName --name customScript --publisher Microsoft.Azure.Extensions --version 2.1 --settings "{\"script\": \"$script\"}"
 
