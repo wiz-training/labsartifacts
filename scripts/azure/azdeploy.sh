@@ -29,7 +29,7 @@ az deployment group wait --resource-group $resourceGroupName --name deployment1 
 #Install libraries using a custom script extension
 echo "Setting up VM"
 script=$(base64 -w0  <(curl -s https://raw.githubusercontent.com/wiz-training/labsartifacts/main/scripts/azure/install-libraries.sh))
-vmName="MyVM"
+vmName="MyVM-$(date +%s | sha256sum | base64 | head -c 8)"
 az vm extension set --resource-group $resourceGroupName --vm-name $vmName --name customScript --publisher Microsoft.Azure.Extensions --version 2.1 --settings "{\"script\": \"$script\"}"
 
 declare -l storageAccountName
