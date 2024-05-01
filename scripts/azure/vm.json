@@ -16,6 +16,12 @@
           "description": "Resource ID of the subnet."
         }
       },
+      "vmName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name for the Virtual Machine."
+        }
+      },
       "adminUsername": {
         "type": "string",
         "defaultValue": "wizadmin",
@@ -70,7 +76,7 @@
       {
         "type": "Microsoft.Compute/virtualMachines",
         "apiVersion": "2022-03-01",
-        "name": "MyVM",
+        "name": "[parameters('vmName')]",
         "location": "[parameters('location')]",
         "dependsOn": [
           "[resourceId('Microsoft.Network/networkInterfaces', 'MyNIC')]"
@@ -98,7 +104,7 @@
             ]
           },
           "osProfile": {
-            "computerName": "MyVM",
+            "computerName": "[parameters('vmName')]",
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]"
           }
