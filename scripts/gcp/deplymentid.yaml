@@ -1,0 +1,15 @@
+imports:
+- path: https://publicstoragetemplate.blob.core.windows.net/importgcptemplatestorage/projectid.jinja
+
+
+resources:
+- name: environmentvariable
+  type: https://publicstoragetemplate.blob.core.windows.net/importgcptemplatestorage/projectid.jinja
+  properties:
+
+
+outputs:
+- name: ProjectId
+  value: $(ref.environmentvariable.projectid)
+- name: ODLUser
+  value: odluser@deploymentId
