@@ -355,8 +355,11 @@
             "Condition": {
                 "Bool": {
                     "aws:ViaAWSService": "false"
+                },
+                "StringNotLike": {
+                  "iam:ResourceName": "cwe-role-${aws:Region}-*"
+                }
                 }
             }
-        }
     ]
 }
