@@ -355,27 +355,6 @@
             "Condition": {
                 "Bool": {
                     "aws:ViaAWSService": "false"
-                },
-                "StringNotLike": {
-                    "iam:ResourceName": [
-                      "service-role/cwe-role-us-east-1-*",
-                      "service-role/cwe-role-us-east-2-*",
-                      "service-role/cwe-role-us-west-1-*",
-                      "service-role/cwe-role-us-west-2-*",
-                      "service-role/cwe-role-eu-west-1-*",
-                      "service-role/cwe-role-eu-west-2-*",
-                      "service-role/cwe-role-eu-west-3-*",
-                      "service-role/cwe-role-eu-central-1-*",
-                      "service-role/cwe-role-eu-central-2-*",
-                      "service-role/cwe-role-eu-north-1-*",
-                      "service-role/cwe-role-eu-south-1-*",
-                      "service-role/cwe-role-eu-south-2-*",
-                      "service-role/cwe-role-af-south-1-*",
-                      "service-role/cwe-role-me-south-1-*",
-                      "service-role/cwe-role-me-central-1-*",
-                      "service-role/cwe-role-ap-southeast-2-*",
-                      "service-role/cwe-role-ap-southeast-3-*"
-                    ]
                 }
             }
         }
