@@ -41,18 +41,9 @@ if ! grep -q "export PATH=$BIN_DIR" ~/.bashrc; then
     echo "export PATH=$BIN_DIR:\$PATH" >> ~/.bashrc
 fi
 
-# Update the current shell's PATH
-export PATH=$BIN_DIR:$PATH
-
-# Test eksctl installation
-echo "Verifying eksctl installation..."
-eksctl version
-if [ $? -eq 0 ]; then
-    echo "eksctl installed successfully."
-else
-    echo "eksctl installation failed."
-    exit 1
-fi
+# Prompt user to source .bashrc
+echo "eksctl installation complete. Please run the following command to update your PATH:"
+echo "source ~/.bashrc"
 
 # Check for OpenSSL and install if not present
 if ! command -v openssl &> /dev/null; then
@@ -62,9 +53,11 @@ if ! command -v openssl &> /dev/null; then
         echo "OpenSSL installation failed."
         exit 1
     fi
+else
+    echo "OpenSSL is already installed."
 fi
 
-# Download and execute the Helm installation script
+# Install Helm
 echo "Installing Helm..."
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 if [ $? -ne 0 ]; then
@@ -81,4 +74,6 @@ else
     exit 1
 fi
 
+# Final messages
 echo "All tools installed successfully!"
+echo "Run 'source ~/.bashrc' to update your PATH and use eksctl globally."
