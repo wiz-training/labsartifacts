@@ -1,0 +1,91 @@
+/* START of Wiz Callout Styles */
+
+/* Generic Callout Styles */
+div.wiz-callout { 
+    padding-left: 10px; 
+    border-left-style: solid;  
+    background: #f9fcff;
+    width: 60%;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+  
+  div.wiz-callout-title {
+    font-weight: bold;
+    margin-bottom: .3em; /* spacer between title and text */
+  }
+  
+  /* Callouts with Icons */
+  div.wiz-note, 
+  div.wiz-important, 
+  div.wiz-warning {
+    position: relative; 
+    padding-left: 5px; 
+  }
+  
+  div.wiz-note::before {
+    content: "info";
+    color: #0254ec;
+    border-color: #0254ec; 
+    font-size: 1.2em;
+  }
+  
+  div.wiz-important::before {
+    content: "report";
+    color: #91CFBA;
+    border-color: #91CFBA;
+    font-size: 1.2em;
+  }
+  
+  div.wiz-warning::before {
+    content: "warning";
+    color: #F99893;
+    border-color: #F99893;
+    font-size: 1.2em;
+  }
+
+  div.wiz-note div.wiz-callout {
+    border-color: #0254ec; 
+  }
+  
+  div.wiz-important div.wiz-callout {
+    border-color: #91CFBA;
+  }
+  
+  div.wiz-warning div.wiz-callout {
+    border-color: #F99893;
+  }
+  
+  /* Shared Pseudo-element Styles */
+  div.wiz-note::before,
+  div.wiz-important::before,
+  div.wiz-warning::before {
+    font-family: 'Material Symbols Outlined' !important;
+    -webkit-font-feature-settings: 'liga' 1;
+    -moz-font-feature-settings: 'liga' 1;
+    font-feature-settings: 'liga' 1;
+    position: absolute; 
+    left: 10px;
+    top: 0; 
+  }
+  
+  div.wiz-note div.wiz-callout,
+  div.wiz-important div.wiz-callout,
+  div.wiz-warning div.wiz-callout {
+    margin-left: 30px;
+  }
+  
+  /* Callout Title Prefixes */
+  div.wiz-note div.wiz-callout-title::before { content: "NOTE"; }
+  div.wiz-important div.wiz-callout-title::before { content: "IMPORTANT"; }
+  div.wiz-warning div.wiz-callout-title::before { content: "WARNING"; }
+  
+  
+  /* No Icon Callout */
+  div.wiz-no-icon div.wiz-callout {
+    margin-left: 10px; 
+    border-color: #FFBFFF; 
+  }
+  
+  
+  /* END of Callout Styles */
