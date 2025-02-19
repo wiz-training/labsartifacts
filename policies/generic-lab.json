@@ -1,0 +1,24 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement1",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:*",
+                "s3:*",
+                "sqs:*",
+                "sns:*",
+                "cloudtrail:*",
+                "logs:*",
+                "iam:*",
+                "vpc:*",
+                "cloudshell:*",
+                "delivery.logs:*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
